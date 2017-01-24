@@ -10,4 +10,4 @@ this module can :
 3. Convert Column's Type
 4. Select Specific Columns
 5. Select Specific Rows ( both in condition and numerical range )
-
+6. Summary of NAs

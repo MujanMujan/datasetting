@@ -120,6 +120,50 @@ selectRows <- function(obj) {
 
 
 
+summary_of_NA <- function(obj) {
+  
+  #get count and ratio of NA in columns
+  cat("Summary of NA in columns (count & ratio):\n")
+  total_of_na <- 0
+  for (i in 1:ncol(obj)) {
+    count_of_na_in_col <- sum(is.na(obj[,i]))
+    total_of_na <- count_of_na_in_col + total_of_na
+    ratio_of_columns <- sum(is.na(obj[,i]))/(length(obj[,i])) * 100
+    if (ratio_of_columns >= 50) {
+      warning <- "#Warning"
+    } else {
+      warning <- ""
+    }
+    cat(names(obj)[i], ": ", count_of_na_in_col ,"\tratio: ", ratio_of_columns , "%\t", warning ,"\n")
+  }
+  
+  
+  #get count and ratio of NA in Rows
+  
+  user_answer <- readline(prompt = "do you sure to see all of rows ratio ? [yes/no]: ")
+  
+  if (user_answer == "yes") {
+    cat("\n\nSummary of NA in rows (count and ratio:\n")
+    for (i in 1:nrow(obj)) {
+      ratio_of_rows <- sum(is.na(obj[i,]))/(length(obj[i,])) * 100
+      if (ratio_of_rows >= 50) {
+        warning <- "#Warning"
+      } else {
+        warning <- ""
+      }
+      cat("Row",i, ": ", sum(is.na(obj[i,])),"\tratio: ", ratio_of_rows, "%\t",warning,"\n")
+    }
+  }
+  
+  total_of_field <- ncol(obj) * nrow(obj)
+  cat("\n\nratio of total(whole dataset) : ", (total_of_na/total_of_field) * 100, "% is NA\n")
+  
+  
+}
+
+
+
+
 
 
 
@@ -128,7 +172,7 @@ selectRows <- function(obj) {
 Mujan <- function() {
   cat("Welcome to Interactive module to preparing dataset !\nCreator: Mujan\n\n\nyour current directiry is", getwd())
   while(TRUE) {
-  cat("\n1. Import Data\n2. Report Data\n3. Convert Column's Type\n4. Select Specific Columns\n5. Select Specific Rows\n0. exit")
+  cat("\n1. Import Data\n2. Report Data\n3. Convert Column's Type\n4. Select Specific Columns\n5. Select Specific Rows\n6. NA Summary\n0. exit")
   answer <- readline(prompt = "What is your choose : ")
   switch (answer,
           "1" = {datum <- importData()
@@ -179,7 +223,13 @@ Mujan <- function() {
                   }
                 }},
           "0" = {cat("GoodBye :)")
-                 break}
+                 break},
+          "6" = {x <- readline(prompt = "are you want work with your last dataset (my_dataset)? [yes/no] : ")
+                if (x == "no") {
+                  datum <- importData()
+                } else if (x == "yes") {
+                  summary_of_NA(datum)
+                }}
   ) #Switch ended
 
   } #While loop ended
