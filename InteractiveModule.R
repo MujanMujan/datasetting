@@ -298,17 +298,156 @@ fillInHand <- function(obj) {
     } # i for ended
   } # if ended 
   else {
-    cat("you backed to missing values treatments menue!\n")
+    cat("you backed to missing values treatments menu!\n")
     return(obj)
     
   }
+  cat("be careful!, all values stored in character type, if you want change that select 'Convert Columns Type' in main menu\n")
   return(obj)
   
 } # function ended
 
-
 #-----fillInHand Function Ended !-------------------------------------------------------------------------------------------------
 
+
+
+
+
+
+
+
+
+
+#-----fillMissingWithConstant Function -------------------------------------------------------------------------------------------
+
+fillMissingWithConstant <- function(obj) {
+  
+  cat("I finding missing values and fill it by your constant value\n")
+  constant <- readline(prompt = "enter your constant to fill missing values: ")
+  cat("task started...\n")
+  for (i in 1:nrow(obj)) {
+    for (j in 1:ncol(obj)){
+      if (is.na(obj[i,j])) {
+        obj[i,j] <- constant 
+      }
+      
+    } # j for ended
+  } # i for ended
+  
+  cat("task succesfully completed\n")
+  return(obj)
+  
+} # function ended
+
+#-----fillMissingWithConstant Function Ended !------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+#-----fillMissingWithStatistics Function -----------------------------------------------------------------------------------------
+
+fillMissingWithStatistics <- function(obj) {
+  
+  cat("I finding missing values and fill it by statistics resualt \n")
+  cat("Supported Statistics: 1. median\t2. mean\n")
+  statics <- readline(prompt = "enter your choose to fill missing values (enter number): ")
+  cat("task started...\n")
+  if (statics == "1") {
+    for (i in 1:nrow(obj)) {
+      for (j in 1:ncol(obj)){
+        if (is.na(obj[i,j])) {
+          obj[i,j] <- median(obj[,j], na.rm = TRUE)
+        }
+      } # j for ended
+    } # i for ended
+  } # if ended
+  else if ( statics == "2") {
+    for (i in 1:nrow(obj)) {
+      for (j in 1:ncol(obj)){
+        if (is.na(obj[i,j])) {
+          obj[i,j] <- mean(obj[,j], na.rm = TRUE)
+        }
+      } # j for ended
+    } # i for ended
+  } # else if ended
+  else {
+    cat("you entered wrong number, try again!\n")
+    return(obj)
+  }
+  cat("task succesfully completed\n")
+  return(obj)
+  
+} # function ended
+
+#-----fillMissingWithStatistics Function Ended !----------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+#-----fillingByCategory Function--------------------------------------------------------------------------------------------------
+
+fillingByCategory <- function(obj) {
+  loop <- TRUE
+  while (loop) {
+    cat("this is your columns name: ", names(obj))
+    column <- readline(prompt = "enter your column: ")
+    column <- match(column, names(obj))
+    if(is.na(column)) {
+      cat("be careful, enter the correct name!, try again!\n")
+    } else {loop <- FALSE}
+  }
+  
+  
+  loop <- TRUE
+  while (loop) {
+    rows_of_object <- nrow(obj)
+    cat_count <- readline("har daste chandta satr bashe? (enter integer): ")
+    cat_count <- as.integer(cat_count)
+    
+    if(is.na(cat_count)) {
+      cat("be careful, enter the integer!!, try again\n\n")  
+    } else {loop <- FALSE}
+  }
+  
+  
+  for_limit <- ceiling(nrow(obj) / cat_count)
+  x <- 1
+  y <- cat_count
+  
+  for (i in 1:for_limit) {
+    
+    for (j in 1:length(obj[x:y,column])) {
+      if (is.na(obj[x:y, column][j])) {
+        obj[x:y, column][j] <- mean(obj[x:y,column], na.rm = TRUE)
+      }
+    }
+    
+    x <- 1 + y
+    y <- x + cat_count - 1
+    while (y > nrow(obj)) {
+      y <- y - 1
+    }
+    
+  }
+  
+  return(obj)
+  
+}
+
+#-----fillingByCategory Function Ended !------------------------------------------------------------------------------------------
 
 
 
@@ -323,12 +462,16 @@ fillInHand <- function(obj) {
 #-----missingValueTreat Function--------------------------------------------------------------------------------------------------
 
 missingValuesTreat <- function(obj) {
-  cat("OK!\n1. Remove row(s) by ratio percentage\n2. Fill in hand (not recommended!)\n")
+  cat("OK!\n1. Remove row(s) by ratio percentage\n2. Fill in hand (not recommended!)\n
+      3. Use constant value to fill missing values\n4. Using statistics to fill missing values\n5. Use statistics (only mean) in specific category\n")
   user_answer <- readline(prompt = "Which? ")
   
   switch(user_answer,
          "1" = {myFile <- removeRows(obj)},
-         "2" = {myFile <- fillInHand(obj)}
+         "2" = {myFile <- fillInHand(obj)},
+         "3" = {myFile <- fillMissingWithConstant(obj)},
+         "4" = {myFile <- fillMissingWithStatistics(obj)},
+         "5" = {myFile <- fillingByCategory(obj)}
          
          stop(cat("select 1 to 6 or enter 0 to exit\n"), missingValuesTreat(obj)) 
          )
@@ -393,7 +536,8 @@ dataCleaning <- function(obj) {
 Mujan <- function() {
   cat("Welcome to Interactive module to preparing dataset !\nCreator: Mujan\n\n\nyour current directiry is", getwd())
   while(TRUE) {
-    cat("\n1. Import Data\n2. Report Data\n3. Convert Column's Type\n4. Select Specific Columns\n5. Select Specific Rows\n6. NA Summary\n7. Data Cleaning0. exit")
+    cat("\n1. Import Data\n2. Report Data\n3. Convert Column's Type\n
+        4. Select Specific Columns\n5. Select Specific Rows\n6. NA Summary\n7. Data Cleaning0. exit")
     answer <- readline(prompt = "What is your choose : ")
     switch (answer,
             "1" = {datum <- importData()
