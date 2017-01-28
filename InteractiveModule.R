@@ -79,22 +79,40 @@ convertDataType <- function(obj) {
     cat(vector_of_columns_name[i], ": " , vector_of_columns_type[i],"\n")
   }
   
-  user_input <- readline(prompt = "what columns you want to change ? enter the names by seprate it with coma (,) : ")
-  user_input <- strsplit(user_input, ",")
-  user_input <- user_input[[1]]
-  user_input <- str_trim(user_input)
-  
+  loop <- TRUE
+  while(loop) {
+    user_input <- readline(prompt = "what columns you want to change ? enter the names by seprate it with coma (,) : ")
+    user_input <- strsplit(user_input, ",")
+    user_input <- user_input[[1]]
+    user_input <- str_trim(user_input)
+    
+    
+    for (i in 1:length(user_input)) {
+      x <- match(user_input[i], vector_of_columns_name)
+      if (is.na(x)) {
+        loop <- TRUE
+        cat("you entered '",user_input[i],"', have not that column! try again\n")
+        break
+      }
+      loop <- FALSE
+    }
+  }
+    
   cat("columns you want to change :\n", user_input, "\n")
+  
+  
+  
   
   cat("types that supports : character, double, integer, logical")
   type_of_column <- readline(prompt = "what type you want ? ")
   indecses_of_columns <- match(user_input, names(obj))
   
   switch (type_of_column,
-          "character" = {obj[indecses_of_columns] <- as.data.frame(sapply(obj[indecses_of_columns], as.character), stringsAsFactors = FALSE)},
-          "double"    = {obj[indecses_of_columns] <- as.data.frame(sapply(obj[indecses_of_columns], as.double), stringsAsFactors = FALSE)},
-          "integer"   = {obj[indecses_of_columns] <- as.data.frame(sapply(obj[indecses_of_columns], as.integer), stringsAsFactors = FALSE)},
-          "logical"   = {obj[indecses_of_columns] <- as.data.frame(sapply(obj[indecses_of_columns], as.logical), stringsAsFactors = FALSE)}
+          "character" = {obj[indecses_of_columns] <- as.data.frame(sapply(obj[indecses_of_columns], as.character), stringsAsFactors = FALSE); loop <- F},
+          "double"    = {obj[indecses_of_columns] <- as.data.frame(sapply(obj[indecses_of_columns], as.double), stringsAsFactors = FALSE); loop <- F},
+          "integer"   = {obj[indecses_of_columns] <- as.data.frame(sapply(obj[indecses_of_columns], as.integer), stringsAsFactors = FALSE); loop <- F},
+          "logical"   = {obj[indecses_of_columns] <- as.data.frame(sapply(obj[indecses_of_columns], as.logical), stringsAsFactors = FALSE); loop <- F}
+          
   )
   
   return(obj)
@@ -526,8 +544,8 @@ dataCleaning <- function(obj) {
 Mujan <- function() {
   cat("Welcome to Interactive module to preparing dataset !\nCreator: Mujan\n\n\nyour current directiry is", getwd())
   while(TRUE) {
-    cat("\n1. Import Data\n2. Report Data\n3. Convert Column's Type\n
-        4. Select Specific Columns\n5. Select Specific Rows\n6. NA Summary\n7. Data Cleaning\n0. exit")
+    cat("\n1. Import Data\n2. Report Data\n3. Convert Column's Type\n")
+        cat("4. Select Specific Columns\n5. Select Specific Rows\n6. NA Summary\n7. Data Cleaning\n0. exit")
     answer <- readline(prompt = "What is your choose : ")
     switch (answer,
             "1" = {datum <- importData()
@@ -555,12 +573,19 @@ Mujan <- function() {
             })
               },
             "3" = {x <- readline(prompt = "are you want work with your last dataset (my_dataset)? [yes/no] : ")
-            if (x == "no") {
-              datum <- importData()
-            } else if (x == "yes") {
-              my_dataset <<- convertDataType(datum)
-              print("the modified dataset returned in variable called 'my_dataset'")
-            }},
+            
+            tryCatch({
+              if (x == "no") {
+                datum <- importData()
+              } else if (x == "yes") {
+                my_dataset <<- convertDataType(datum)
+                print("the modified dataset returned in variable called 'my_dataset'")
+              }}, error = function(e) {
+                cat("the dataset does not exist ! you must import one frist!\n")
+                datum <- importData()
+                my_dataset <<- convertDataType(datum)
+                print("the modified dataset returned in variable called 'my_dataset'")
+              })},
             "4" = {x <- readline(prompt = "are you want work with your last dataset (my_dataset)? [yes/no] : ")
             if (x == "no") {
               datum <- importData()
@@ -602,6 +627,7 @@ Mujan <- function() {
                       cat("be careful! if you want have a sample of input dataset in your environment, you must use frist option (Import Data) \n")
                       dataCleaning(datum)
                     } else if (x == "yes") {
+                      cat("the new dataset (cleaned_dataset) returned in your environment")
                       cleaned_dataset <<- dataCleaning(datum)
                     }
                   })                  
