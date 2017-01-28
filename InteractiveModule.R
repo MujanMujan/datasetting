@@ -187,7 +187,7 @@ selectRows <- function(obj) {
 
 
 
-
+#----Data Cleaning Phase----------------------------------------------------------------------------------------------------------
 #----Summary_of_NA Function---------> --------------------------------------------------------------------------------------------
 summary_of_NA <- function(obj) {
   
@@ -240,18 +240,167 @@ summary_of_NA <- function(obj) {
 
 
 
+#-----Remove Rows Function -------------------------------------------------------------------------------------------------------
+
+removeRows <- function(obj) {
+  options(warn = -1)
+  tryCatch({
+    rate_for_remove <- readline(prompt = "enter your maximum rate for removing (between 0 - 100): ")
+    rate_for_remove <- as.integer(rate_for_remove)
+    count_of_removed <- 0
+    
+    for (i in 1:nrow(obj)) {
+      ratio_of_row <- sum(is.na(obj[i,]))/(length(obj[i,])) * 100
+      if (ratio_of_row >= rate_for_remove) {
+        obj <- obj[-i,]
+        count_of_removed <- count_of_removed + 1
+      }
+    }
+    cat("you ignored", count_of_removed - 1, "row(s)\n")
+    return(obj)
+  }, error = function(e) {
+    cat("enter integer!\n")
+    del(obj)
+  })
+  
+}
+
+#-----remove Rows Function Ended ! -----------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+#-----fillInHand Function --------------------------------------------------------------------------------------------------------
+
+fillInHand <- function(obj) {
+  cat("i frist finding all missing values (NA) and allows you to fill it\nit extermly not recommended!!\n")
+  user_answer <- readline(prompt = "are you sure to countinue ? [yes/no]: ")
+  
+  if (user_answer == "yes") {
+    
+    for (i in 1:nrow(obj)) {
+      for (j in 1:ncol(obj)){
+        if (is.na(obj[i,j])) {
+          cat("missing value found in row", i, "and column", j, "('", names(obj)[j], "')\n")
+          cat("all of row", i,  "values are: ", obj[,j])
+          value <- readline(prompt = "what is your value for this field: ")
+          obj[i,j] <- value 
+        }
+        
+      } # j for ended
+    } # i for ended
+  } # if ended 
+  else {
+    cat("you backed to missing values treatments menue!\n")
+    return(obj)
+    
+  }
+  return(obj)
+  
+} # function ended
+
+
+#-----fillInHand Function Ended !-------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+#-----missingValueTreat Function--------------------------------------------------------------------------------------------------
+
+missingValuesTreat <- function(obj) {
+  cat("OK!\n1. Remove row(s) by ratio percentage\n2. Fill in hand (not recommended!)\n")
+  user_answer <- readline(prompt = "Which? ")
+  
+  switch(user_answer,
+         "1" = {myFile <- removeRows(obj)},
+         "2" = {myFile <- fillInHand(obj)}
+         
+         stop(cat("select 1 to 6 or enter 0 to exit\n"), missingValuesTreat(obj)) 
+         )
+}
+
+
+
+
+
+
+
+
+
+#----missingValueTreat Function Ended !-------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+#-----dataCleaning Function----- > -----------------------------------------------------------------------------------------------
+
+
+dataCleaning <- function(obj) {
+  cat("welcome to data cleaning pahse!\nselect your option:\n")
+  cat("1. Missing Value Treatment\n")
+  user_answer <- readline(prompt = "what was your choose ? ")
+  
+  switch(user_answer,
+         "1" = { myFile <- missingValuesTreat(obj) }
+         )
+  
+}
+
+
+
+
+
+
+
+
+#-----dataCleaning Function Ended !-----------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 #-----MUJAN FUNCTION : -----------------------------------------------------------------------------------------------------------
 
 Mujan <- function() {
   cat("Welcome to Interactive module to preparing dataset !\nCreator: Mujan\n\n\nyour current directiry is", getwd())
   while(TRUE) {
-    cat("\n1. Import Data\n2. Report Data\n3. Convert Column's Type\n4. Select Specific Columns\n5. Select Specific Rows\n6. NA Summary\n0. exit")
+    cat("\n1. Import Data\n2. Report Data\n3. Convert Column's Type\n4. Select Specific Columns\n5. Select Specific Rows\n6. NA Summary\n7. Data Cleaning0. exit")
     answer <- readline(prompt = "What is your choose : ")
     switch (answer,
             "1" = {datum <- importData()
             my_dataset <<- datum 
             print("the dataset returned in variable called 'my_dataset'")},
             "2" = {x <- readline(prompt = "do you want the report of your last dataset(my_dataset)? [yes/no] : ")
+            tryCatch({
             if (x == "yes"){
               report_of_dataset <<- report(datum)
               print(report_of_dataset)
@@ -261,7 +410,16 @@ Mujan <- function() {
               report_of_dataset <<- report(datum)
               print(report_of_dataset)
               print("the result also save in varible called 'report_of_dataset'")
-            }},
+              cat("be careful! if you want have a sample of input dataset in your environment, you must use frist option (Import Data) \n")
+            }}, error = function(e) {
+              cat("the dataset does not exist ! you must import one frist!\n")
+              datum <- importData()
+              report_of_dataset <<- report(datum)
+              print(report_of_dataset)
+              print("the result also save in varible called 'report_of_dataset'")
+              cat("be careful! if you want have a sample of input dataset in your environment, you must use frist option (Import Data) \n")
+            })
+              },
             "3" = {x <- readline(prompt = "are you want work with your last dataset (my_dataset)? [yes/no] : ")
             if (x == "no") {
               datum <- importData()
@@ -302,7 +460,18 @@ Mujan <- function() {
               datum <- importData()
             } else if (x == "yes") {
               summary_of_NA(datum)
-            }}
+            }},
+            "7" = {x <- readline(prompt = "are you want work with your last dataset (my_dataset)? [yes/no] : ")
+                  tryCatch({
+                    if (x == "no") {
+                      datum <- importData()
+                      cat("be careful! if you want have a sample of input dataset in your environment, you must use frist option (Import Data) \n")
+                      dataCleaning(datum)
+                    } else if (x == "yes") {
+                      dataCleaning(datum)
+                    }
+                  })                  
+             }
     ) #Switch ended
     
   } #While loop ended
