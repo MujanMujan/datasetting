@@ -471,18 +471,12 @@ missingValuesTreat <- function(obj) {
          "2" = {myFile <- fillInHand(obj)},
          "3" = {myFile <- fillMissingWithConstant(obj)},
          "4" = {myFile <- fillMissingWithStatistics(obj)},
-         "5" = {myFile <- fillingByCategory(obj)}
+         "5" = {myFile <- fillingByCategory(obj)},
          
          stop(cat("select 1 to 6 or enter 0 to exit\n"), missingValuesTreat(obj)) 
          )
+  return(myFile)
 }
-
-
-
-
-
-
-
 
 
 #----missingValueTreat Function Ended !-------------------------------------------------------------------------------------------
@@ -510,13 +504,9 @@ dataCleaning <- function(obj) {
          "1" = { myFile <- missingValuesTreat(obj) }
          )
   
+  return(myFile)
+  
 }
-
-
-
-
-
-
 
 
 #-----dataCleaning Function Ended !-----------------------------------------------------------------------------------------------
@@ -537,7 +527,7 @@ Mujan <- function() {
   cat("Welcome to Interactive module to preparing dataset !\nCreator: Mujan\n\n\nyour current directiry is", getwd())
   while(TRUE) {
     cat("\n1. Import Data\n2. Report Data\n3. Convert Column's Type\n
-        4. Select Specific Columns\n5. Select Specific Rows\n6. NA Summary\n7. Data Cleaning0. exit")
+        4. Select Specific Columns\n5. Select Specific Rows\n6. NA Summary\n7. Data Cleaning\n0. exit")
     answer <- readline(prompt = "What is your choose : ")
     switch (answer,
             "1" = {datum <- importData()
@@ -612,7 +602,7 @@ Mujan <- function() {
                       cat("be careful! if you want have a sample of input dataset in your environment, you must use frist option (Import Data) \n")
                       dataCleaning(datum)
                     } else if (x == "yes") {
-                      dataCleaning(datum)
+                      cleaned_dataset <<- dataCleaning(datum)
                     }
                   })                  
              }
